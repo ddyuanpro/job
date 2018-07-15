@@ -1,0 +1,192 @@
+1.题目描述
+  给一个链表，若其中包含环，请找出该链表的环的入口结点，否则，输出null。 
+                  /*
+                   public class ListNode {
+                      int val;
+                      ListNode next = null;
+
+                      ListNode(int val) {
+                          this.val = val;
+                      }
+                  }
+                  */
+
+                  public class Solution {
+
+                      ListNode EntryNodeOfLoop(ListNode pHead){
+                          if(pHead == null || pHead.next == null)
+                              return null;
+                          ListNode p1 = pHead;
+                          ListNode p2 = pHead;
+                          while(p2 != null && p2.next != null ){
+                              p1 = p1.next;
+                              p2 = p2.next.next;
+                              if(p1 == p2){
+                                  p2 = pHead;
+                                  while(p1 != p2){
+                                      p1 = p1.next;
+                                      p2 = p2.next;
+                                  }
+                                  if(p1 == p2)
+                                      return p1;
+                              }
+                          }
+                          return null;
+                      }
+                  }
+                  
+2. 题目描述
+在一个排序的链表中，存在重复的结点，请删除该链表中重复的结点，重复的结点不保留，返回链表头指针。 
+例如，链表1->2->3->3->4->4->5 处理后为 1->2->5
+                  public class Solution {
+                      public ListNode deleteDuplication(ListNode pHead) {
+                          if (pHead == null || pHead.next == null) { // 只有0个或1个结点，则返回
+                              return pHead;
+                          }
+                          if (pHead.val == pHead.next.val) { // 当前结点是重复结点
+                              ListNode pNode = pHead.next;
+                              while (pNode != null && pNode.val == pHead.val) {
+                                  // 跳过值与当前结点相同的全部结点,找到第一个与当前结点不同的结点
+                                  pNode = pNode.next;
+                              }
+                              return deleteDuplication(pNode); // 从第一个与当前结点不同的结点开始递归
+                          } else { // 当前结点不是重复结点
+                              pHead.next = deleteDuplication(pHead.next); // 保留当前结点，从下一个结点开始递归
+                              return pHead;
+                          }
+                      }
+                  }
+
+3. 题目描述
+输入一个链表，按链表值从尾到头的顺序返回一个ArrayList。
+                import java.util.ArrayList;
+                public class Solution {
+                    public ArrayList<Integer> printListFromTailToHead(ListNode listNode) {
+                          ArrayList<Integer> ai = new ArrayList<Integer>();
+                          ListNode  pre=null;
+                          ListNode  next=null;
+                          while(listNode != null)
+                          {
+                              next=listNode.next;
+                              listNode.next=pre;
+                              pre=listNode;
+                              listNode=next;
+                          }
+                        while(pre!=null)
+                        {
+                            ai.add(pre.val);
+                            pre=pre.next;
+                        }
+                        return ai;    
+                    } 
+                }
+
+4. 题目描述
+   输入两个链表，找出它们的第一个公共结点。
+              import java.util.ArrayList;
+              public class Solution {//这个题只是将其中一个链表的值写入一个集合中，然后在将第二个链表遍历
+                  public ListNode FindFirstCommonNode(ListNode pHead1, ListNode pHead2) {
+                      ListNode current1 = pHead1;
+                      ListNode current2 = pHead2;
+                      ArrayList<ListNode> list= new ArrayList<ListNode>();
+                      while (current1 != null) {
+                          list.add(current1);
+                          current1 = current1.next;
+                      }
+                      while (current2 != null) {
+                          if (list.contains(current2))
+                              return current2;
+                          current2 = current2.next;
+                      }
+                      return null;
+                  }
+              }
+              
+ 5.题目描述
+   输入一个链表，输出该链表中倒数第k个结点。 
+                   //该题目的思路是设计两个指针，让第一个指针先走k步，然后第二个指针开始走，
+                //直到该链表结束时的情况就是该链表的倒数第k个结点
+                public class Solution {
+                    public ListNode FindKthToTail(ListNode head,int k) {
+                     if(head==null||k<=0) return null;
+                      ListNode head1;
+                        head1=head;
+                        int i=1;
+                        while(i<k)
+                        {
+                            if(head.next==null) return null;
+                            head=head.next;
+                            i++;
+                        }
+                        while(head.next!=null)
+                        {
+                            head=head.next;
+                            head1=head1.next;
+                        }
+                        return head1;
+                    }
+                }
+  
+  6. 题目描述
+     输入两个单调递增的链表，输出两个链表合成后的链表，当然我们需要合成后的链表满足单调不减规则。
+                       public class Solution {
+                      public ListNode Merge(ListNode list1,ListNode list2) {
+                          if(list1==null) return list2;
+                          if(list2==null) return list1;
+                          ListNode head=null;
+                          if(list1.val>list2.val)
+                          {
+                              head=list2;
+                             head.next= Merge(list2.next,list1);
+                          }
+                           else
+                          {
+                              head=list1;
+                             head.next=  Merge(list1.next,list2);
+                          }
+                          return head;
+                      }
+                  }
+                  
+ 7.题目描述
+   输入一个链表，反转链表后，输出新链表的表头。
+                     public class Solution {
+                      public ListNode ReverseList(ListNode head) {
+                          if(head==null)
+                              return null;
+                          //head为当前节点，如果当前节点为空的话，那就什么也不做，直接返回null；
+                          ListNode pre = null;
+                          ListNode next = null;
+                          //当前节点是head，pre为当前节点的前一节点，next为当前节点的下一节点
+                          //需要pre和next的目的是让当前节点从pre->head->next1->next2变成pre<-head next1->next2
+                          //即pre让节点可以反转所指方向，但反转之后如果不用next节点保存next1节点的话，此单链表就此断开了
+                          //所以需要用到pre和next两个节点
+                          //1->2->3->4->5
+                          //1<-2<-3 4->5
+                          while(head!=null){
+                              //做循环，如果当前节点不为空的话，始终执行此循环，此循环的目的就是让当前节点从指向next到指向pre
+                              //如此就可以做到反转链表的效果
+                              //先用next保存head的下一个节点的信息，保证单链表不会因为失去head节点的原next节点而就此断裂
+                              next = head.next;
+                              //保存完next，就可以让head从指向next变成指向pre了，代码如下
+                              head.next = pre;
+                              //head指向pre后，就继续依次反转下一个节点
+                              //让pre，head，next依次向后移动一个节点，继续下一次的指针反转
+                              pre = head;
+                              head = next;
+                          }
+                          //如果head为null的时候，pre就为最后一个节点了，但是链表已经反转完毕，pre就是反转后链表的第一个节点
+                          //直接输出pre就是我们想要得到的反转后的链表
+                          return pre;
+
+                      }
+                  }
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
