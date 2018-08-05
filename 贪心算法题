@@ -1,0 +1,172 @@
+
+1.Given a string, determine if it is a palindrome, considering only alphanumeric characters and ignoring cases.
+For example,
+"A man, a plan, a canal: Panama"is a palindrome.
+"race a car"is not a palindrome.
+Note: 
+Have you consider that the string might be empty? This is a good question to ask during an interview.
+For the purpose of this problem, we define empty string as valid palindrome.
+
+                  public class Solution {
+                      public boolean isPalindrome(String s) {
+                          if(s.isEmpty()) return true;
+                          String str = s.replaceAll("\\W", ""); // 使用正则去除非字符数字的字符
+                          str = str.toLowerCase();
+                          for(int i = 0; i < str.length(); i++) {
+                              if(str.charAt(i) != str.charAt(str.length() - i -1)) {
+                                  return false;
+                              }
+                          }
+                          return true;
+                      }
+                  }
+2.There are N gas stations along a circular route, where the amount of gas at station i isgas[i].
+You have a car with an unlimited gas tank and it costscost[i]of gas to travel from station i to its next station (i+1). You begin the journey with an empty tank at one of the gas stations.
+Return the starting gas station's index if you can travel around the circuit once, otherwise return -1.
+Note: 
+The solution is guaranteed to be unique.
+
+                    public class Solution {
+                        public int canCompleteCircuit(int[] gas, int[] cost) {
+                            if (gas == null || cost == null || gas.length <= 0 || cost.length <= 0)
+                                return -1;
+
+                            int index = -1, remain = 0, total = 0;
+                            for(int i = 0; i < gas.length; i++){
+                                total += gas[i] - cost[i];
+                                remain += gas[i] - cost[i];
+                                // 如果本次剩余<0,说明不能由i走到i+1
+                                if(remain < 0){
+                                    remain = 0;
+                                    index = i;
+                                }
+                            }
+                            return total >= 0 ? index + 1 : -1;
+                        }
+                    }
+                    
+ 3.Given a string S and a string T, find the minimum window in S which will contain all the characters in T in complexity O(n).
+For example,
+S ="ADOBECODEBANC"
+T ="ABC"
+Minimum window is"BANC".
+Note: 
+If there is no such window in S that covers all characters in T, return the emtpy string"".
+If there are multiple such windows, you are guaranteed that there will always be only one unique minimum window in S.                  
+   
+                    import java.util.*;
+                    public class Solution {
+                    public String minWindow(String S, String T) {
+                     String res = "";
+                            HashMap<Character,Integer> map = new HashMap<Character,Integer>();
+                            int left = 0;
+                            int minL = Integer.MAX_VALUE;
+                            int count = 0;
+                            //这里是得出每个字符的个数
+                            for(int i=0; i<T.length(); i++) {
+                                if(map.containsKey(T.charAt(i)))
+                                    map.put(T.charAt(i), map.get(T.charAt(i))+1);
+                                else
+                                    map.put(T.charAt(i), 1);
+                            }
+
+                            for(int i=0; i<S.length(); i++) {
+                                if(map.containsKey(S.charAt(i))) {
+                                    map.put(S.charAt(i), map.get(S.charAt(i))-1);
+                                    if(map.get(S.charAt(i)) >= 0) {
+                                        count++;
+                                    }
+                                    while(count == T.length()) {
+                                        if(map.containsKey(S.charAt(left))) {
+                                            if(i - left + 1 < minL) {
+                                                minL = i - left + 1;
+                                                res = S.substring(left, i+1);
+                                            }
+                                            map.put(S.charAt(left), map.get(S.charAt(left))+1);
+                                            if(map.get(S.charAt(left)) > 0)
+                                                count--;
+                                        }
+                                        left++;
+                                    }
+                                }      
+                            }
+                            return res;
+                        }
+                    }
+                    
+4.Given an array of non-negative integers, you are initially positioned at the first index of the array.
+Each element in the array represents your maximum jump length at that position.
+Determine if you are able to reach the last index.
+For example:
+A =[2,3,1,1,4], return true.
+A =[3,2,1,0,4], return false.  
+
+                    public class Solution {
+                     public boolean canJump(int[] nums) {
+                            // 异常输入
+                            if (nums == null || nums.length < 1)
+                                return false;
+                            if (nums.length == 1)
+                                return true;
+                            int last = nums.length - 1;
+                            for (int i = nums.length - 2; i >= 0; i--) {
+                                if (i + nums[i] >= last)
+                                    last = i;
+                            }
+                            return last == 0;
+                        }
+                    }
+                    
+
+5.Find the contiguous subarray within an array (containing at least one number) which has the largest sum.
+For example, given the array[−2,1,−3,4,−1,2,1,−5,4],
+the contiguous subarray[4,−1,2,1]has the largest sum =6.
+click to show more practice.
+More practice:
+If you have figured out the O(n) solution, try coding another solution using the divide and conquer approach, which is more subtle.                    
+   
+                       /*
+                     *从头开始累加，直到和为负。此时前面这段不能给后面的串带来正收益，应舍弃，sum清零
+                     *然后在开始统计最大的sum.
+                     */
+                    public class Solution {
+                        public int maxSubArray(int[] A) {
+                            if(A.length == 0) return 0;
+                            int sum = 0, max = A[0];
+                            for(int i = 0; i < A.length; i++) {
+                                sum += A[i];
+                                if(max < sum) max = sum;
+                                if(sum < 0)  sum = 0;
+                            }
+                            return max;       
+                        }
+                    }
+                    
+ 6.Given an array of non-negative integers, you are initially positioned at the first index of the array.
+Each element in the array represents your maximum jump length at that position.
+Your goal is to reach the last index in the minimum number of jumps.
+For example:
+Given array A =[2,3,1,1,4]
+The minimum number of jumps to reach the last index is 2. (Jump1step from index 0 to 1, then3steps to the last index.)                   
+                    
+                     public class Solution {
+                    public int jump(int[] A) {
+                            int[] dp = new int[A.length]; // dp存放都到各点的最小步数
+                            for (int i = 0; i < dp.length; i ++) {
+                                int maxPosition = Math.min(i + A[i], A.length - 1); // 从i点出发能走的最远距离
+                                for (int j = i + 1; j <= maxPosition; j ++) {
+                                    if(dp[j] == 0) dp[j] = dp[i] + 1; // 如果位置没被走过,则到达j点的步数为dp[i]+1
+                                }
+                                if(dp[A.length - 1] != 0) break; // 当第一次到达终点时,肯定是到达终点最短的步数
+                            }
+                            return dp[A.length - 1];
+                        }
+                    }                   
+                    
+                    
+                    
+                    
+                    
+                    
+                    
+                    
