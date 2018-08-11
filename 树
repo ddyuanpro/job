@@ -88,20 +88,20 @@
  
  4.题目描述
    给定一个二叉树和其中的一个结点，请找出中序遍历顺序的下一个结点并且返回。注意，树中的结点不仅包含左右子结点，同时包含指向父结点的指针。
-   public class Solution {
+   public class Solution {//中序遍历是  左 中 右
     public TreeLinkNode GetNext(TreeLinkNode pNode)
     {
-        if(pNode==null) return null;
-        if(pNode.right!=null){
+        if(pNode==null) return null;//首先判断的条件，说明严谨
+        if(pNode.right!=null){//如果右子树不为空，下一个节点一定在其中，肯定是最左边的节点
             pNode=pNode.right;
             while(pNode.left!=null){
                 pNode=pNode.left;
             }
             return pNode;
         }
-        while(pNode.next!=null){
-            while(pNode.next.left==pNode) return pNode.next;
-            pNode=pNode.next;
+        while(pNode.next!=null){//如果右子树为空，那就要判断自己是在父节点的左边还是右边
+            while(pNode.next.left==pNode) return pNode.next;//如果在父节点的左边，则直接返回父节点
+            pNode=pNode.next;//直到该节点出现在某一个节点的左边
         }
         return null;
     }
@@ -139,8 +139,8 @@
             if(pRoot == null){
                 return result;
             }
-            Queue<TreeNode> layer = new LinkedList<TreeNode>();
-            ArrayList<Integer> layerList = new ArrayList<Integer>();
+            Queue<TreeNode> layer = new LinkedList<TreeNode>();//这个用来放节点
+            ArrayList<Integer> layerList = new ArrayList<Integer>();//这个用来放节点的值
             layer.add(pRoot);
             int start = 0, end = 1;
             while(!layer.isEmpty()){
@@ -387,6 +387,83 @@
     }
 
 
+
+//三种遍历
+public class TreeToSequence {
+    public int[][] convert(TreeNode root) {
+        // write code here
+        List<Integer> listFirst = new LinkedList<Integer>();
+        List<Integer> listSecond = new LinkedList<Integer>();
+        List<Integer> listEnd = new LinkedList<Integer>();
+        xianxu(listFirst, root);
+        zhongxu(listSecond, root);
+        houxu(listEnd, root);
+        int[][] result = new int[3][listFirst.size()];
+        for (int j = 0;j < listFirst.size();j++) {
+            result[0][j] = listFirst.get(j);
+            result[1][j] = listSecond.get(j);
+            result[2][j] = listEnd.get(j);
+        }
+        return result;
+    }
+    /**
+     * 先序遍历
+     */
+    private static void xianxu(List<Integer> list, TreeNode root) {
+        Stack<TreeNode> stack = new Stack<TreeNode>();
+        stack.add(root);
+        while (!stack.isEmpty()) {
+            root = stack.pop();
+            list.add(root.val);
+            if (root.right != null) {
+                stack.push(root.right);
+            }
+            if (root.left != null){
+                stack.push(root.left);
+            }
+ 
+        }
+    }
+ 
+    /**
+     * 中序遍历
+     */
+    private static void zhongxu(List<Integer> list, TreeNode root) {
+        Stack<TreeNode> stack = new Stack<TreeNode>();
+        while (!stack.isEmpty() || root!=null) {
+            if (root != null) {
+                stack.push(root);
+                root = root.left;
+            }else {
+                root = stack.pop();
+                list.add(root.val);
+                root = root.right;
+            }
+        }
+    }
+ 
+    /**
+     * 后序遍历（两个栈实现）
+     */
+    private static void houxu(List<Integer> list, TreeNode root) {
+        Stack<TreeNode> stack1 = new Stack<TreeNode>();
+        Stack<TreeNode> stack2 = new Stack<TreeNode>();
+        stack1.add(root);
+        while (!stack1.isEmpty()) {
+            root = stack1.pop();
+            stack2.push(root);
+            if (root.left != null) {
+                stack1.push(root.left);
+            }
+            if (root.right != null) {
+                stack1.push(root.right);
+            }
+        }
+        while (!stack2.isEmpty()) {
+            list.add(stack2.pop().val);
+        }
+    }
+}
 
 
 
