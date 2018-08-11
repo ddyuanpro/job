@@ -1,0 +1,708 @@
+第一部分 经典的动态规划题目
+1、找零钱问题
+    有数组penny，penny中所有的值都为正数且不重复。每个值代表一种面值的货币，每种面值的货币可以使用任意张，
+    再给定一个整数aim(小于等于1000)代表要找的钱数，求换钱有多少种方法。
+    给定数组penny及它的大小(小于等于50)，同时给定一个整数aim，请返回有多少种方法可以凑成aim。
+      测试样例：
+      [1,2,4],3,3
+      返回：2
+
+解析：设dp[n][m]为使用前n中货币凑成的m的种数，那么就会有两种情况：
+             使用第n种货币：dp[n-1][m]+dp[n-1][m-peney[n]]
+             不用第n种货币：dp[n-1][m]，为什么不使用第n种货币呢，因为penney[n]>m。
+             这样就可以求出当m>=penney[n]时 dp[n][m] = dp[n-1][m]+dp[n][m-peney[n]]，否则，dp[n][m] = dp[n-1][m]
+
+代码如下：
+import java.util.*;  
+public class Exchange {  
+    public int countWays(int[] penny, int n, int aim) {  
+        if(n==0||penny==null||aim<0){  
+         return 0;     
+        }  
+        int[][] pd = new int[n][aim+1];  
+        for(int i=0;i<n;i++){  
+         pd[i][0] = 1;     
+        }  
+        for(int i=1;penny[0]*i<=aim;i++){  
+         pd[0][penny[0]*i] = 1;     
+        }  
+        for(int i=1;i<n;i++){  
+            for(int j=0;j<=aim;j++){  
+                if(j>=penny[i]){  
+                    pd[i][j] = pd[i-1][j]+pd[i][j-penny[i]];  
+                }else{  
+                    pd[i][j] = pd[i-1][j];  
+                }  
+            }  
+        }  
+        return pd[n-1][aim];  
+    }   
+2、走方格问题
+    有一个矩阵map，它每个格子有一个权值。从左上角的格子开始每次只能向右或者向下走，最后到达右下角的位置，路径上所有的数字累加起来就是路径和，
+    返回所有的路径中最小的路径和。
+    给定一个矩阵map及它的行数n和列数m，请返回最小路径和。保证行列数均小于等于100.
+测试样例：
+[[1,2,3],[1,1,1]],2,3
+返回：4
+
+解析：设dp[n][m]为走到n*m位置的路径长度，那么显而易见dp[n][m] = min(dp[n-1][m],dp[n][m-1]);
+
+代码如下：
+import java.util.*;    
+public class MinimumPath {  
+    public int getMin(int[][] map, int n, int m) {  
+        // write code here  
+       int[][] dp = new int[n][m];  
+        for(int i=0;i<n;i++){  
+            for(int j=0;j<=i;j++){  
+             dp[i][0]+=map[j][0];      
+            }  
+        }  
+        for(int i=0;i<m;i++){  
+            for(int j=0;j<=i;j++){  
+             dp[0][i]+=map[0][j];      
+            }  
+        }  
+        for(int i=1;i<n;i++){  
+            for(int j=1;j<m;j++){  
+             dp[i][j] = min(dp[i][j-1]+map[i][j],dp[i-1][j]+map[i][j]);     
+            }  
+        }  
+        return dp[n-1][m-1];  
+    }  
+    public int min(int a,int b){  
+        if(a>b){  
+         return b;     
+        }else{  
+         return a;     
+        }  
+    } 
+    
+3、走台阶问题
+ 有n级台阶，一个人每次上一级或者两级，问有多少种走完n级台阶的方法。为了防止溢出，请将结果Mod 1000000007
+给定一个正整数int n，请返回一个数，代表上楼的方式数。保证n小于等于100000。
+测试样例：
+1
+返回：1
+
+解析：这是一个非常经典的为题，设f(n)为上n级台阶的方法，要上到n级台阶的最后一步有两种方式：从n-1级台阶走一步；从n-1级台阶走两步，于是就有了这个公式f(n) = f(n-1)+f(n-2);
+
+代码如下：
+import java.util.*;  
+public class GoUpstairs {  
+    public int countWays(int n) {  
+        // write code here  
+        if(n<=2)  
+            return n;  
+        int f = 1%1000000007;  
+        int s = 2%1000000007;  
+        int t = 0;  
+        for(int i=3;i<=n;i++){  
+         t = (f+s)%1000000007;  
+         f = s;  
+         s = t;  
+        }  
+       return t;   
+    }  
+}
+4、最长公共序列数
+    给定两个字符串A和B，返回两个字符串的最长公共子序列的长度。例如，A="1A2C3D4B56”，B="B1D23CA45B6A”，”123456"或者"12C4B6"都是最长公共子序列。
+    给定两个字符串A和B，同时给定两个串的长度n和m，请返回最长公共子序列的长度。保证两串长度均小于等于300。
+  测试样例：
+  "1A2C3D4B56",10,"B1D23CA45B6A",12
+  返回：6
+
+解析：设dp[n][m] ，为A的前n个字符与B的前m个字符的公共序列长度，则当A[n]==B[m]的时候，dp[i][j] = max(dp[i-1][j-1]+1,dp[i-1][j],dp[i][j-1])，
+否则，dp[i][j] = Math.max(dp[i-1][j],dp[i][j-1]);
+
+代码如下：
+import java.util.*;  
+public class LCS {  
+    public int findLCS(String A, int n, String B, int m) {  
+        int[][] dp = new int[n][m];  
+        char[] a = A.toCharArray();  
+        char[] b = B.toCharArray();  
+       for(int i=0;i<n;i++){  
+           if(a[i]==b[0]){  
+               dp[i][0] = 1;  
+               for(int j=i+1;j<n;j++){  
+                   dp[j][0] = 1;  
+               }  
+               break;  
+           }       
+       }  
+         for(int i=0;i<m;i++){  
+           if(a[0]==b[i]){  
+               dp[0][i] = 1;  
+               for(int j=i+1;j<m;j++){  
+                   dp[0][j] = 1;  
+               }  
+               break;  
+           }       
+       }  
+       for(int i=1;i<n;i++){  
+           for(int j=1;j<m;j++){  
+               if(a[i]==b[j]){  
+                  dp[i][j] = max(dp[i-1][j-1]+1,dp[i-1][j],dp[i][j-1]);  
+               }else{  
+                   dp[i][j] = Math.max(dp[i-1][j],dp[i][j-1]);  
+               }               
+           }  
+       }       
+        return dp[n-1][m-1];  
+    }  
+    public int max(int a,int b,int c){  
+        int max = a;  
+        if(b>max)  
+            max=b;  
+        if(c>max)  
+            max = c;  
+        return max;  
+    }  
+} 
+
+
+
+第二部分 LEEDCODE 上面的动态规划的题目
+1. word break
+  Given a string s and a dictionary of words dict, determine if s can be segmented into a space-separated sequence
+   of one or more dictionary words.
+  For example, given
+  s ="leetcode",
+  dict =["leet", "code"].
+  Return true because"leetcode"can be segmented as"leet code".
+  
+                    import java.util.*;
+                    public class Solution {
+                        public boolean wordBreak(String s, Set<String> dict) {
+                             int i,j;
+                            boolean array[]=new boolean[s.length()+1];//此处的Array大小
+                            array[0]=true;//此处的初始化
+                            for(i=1;i<array.length;i++) {
+                                for(j=0;j<i;j++) {
+                                    if(array[j]&&dict.contains(s.substring(j, i))) {
+                                        array[i]=true;//此处的SubString
+                                        break;
+                                    }
+                                }
+                            }
+                            return array[array.length-1];//此处的返回值
+                        }
+                    }
+
+2. word break2
+  Given a string s and a dictionary of words dict, add spaces in s to construct a sentence where each word is a valid dictionary word.
+  Return all such possible sentences.
+  For example, given
+  s ="catsanddog",
+  dict =["cat", "cats", "and", "sand", "dog"].
+  A solution is["cats and dog", "cat sand dog"].
+  
+                    import java.util.*;
+                    public class Solution {
+                        public ArrayList<String> wordBreak(String s, Set<String> dict) {
+                             ArrayList<String> res = new ArrayList<>();
+                            int[] len = new int[s.length()];
+                            String[][] hebing1 = new String[s.length()][s.length() * s.length()];
+                            boolean[] dp = new boolean[s.length()];
+                            for (int i = 0; i < s.length(); i++) {
+                                if (dict.contains(s.substring(0,i + 1))){
+                                    hebing1[i][len[i]++] = s.substring(0,i + 1);
+                                    dp[i] = true;
+                                }
+                                for (int j = 0; j < i; j++) {
+                                    dp[i] = true;
+                                    if (dp[j] && dict.contains(s.substring(j + 1 , i + 1))) {
+                                        for (int k = 0; k < len[j]; k++) {
+                                            hebing1[i][len[i]++] = hebing1[j][k] + " " + s.substring(j + 1,i + 1);
+                                        }
+                                    }
+                                }
+                            }
+                            for (int i = 0; i < len[s.length() - 1]; i++) {
+                                if (hebing1[s.length() -1][i] != null){
+                                    res.add(hebing1[s.length() -1][i]);
+                                }
+                            }
+                            return res;
+                        }
+                    }
+                    
+3. candy
+    There are N children standing in a line. Each child is assigned a rating value.
+    You are giving candies to these children subjected to the following requirements:
+    Each child must have at least one candy.
+    Children with a higher rating get more candies than their neighbors.
+    What is the minimum candies you must give?
+    
+                    import java.util.*;
+                    public class Solution {
+                        public int candy(int[] ratings) {
+                            if(ratings==null || ratings.length==0) {
+                                return 0;
+                            }
+                            int[] count = new int[ratings.length];
+                            //每个孩子初始都有一个糖果
+                            Arrays.fill(count,1);
+                            int sum = 0;
+                            for(int i=1;i<ratings.length;i++) {
+                                if(ratings[i]>ratings[i-1]) {
+                                    count[i] = count[i-1]+1;
+                                }
+                            
+                            for(int i=ratings.length-1;i>0;i--) {
+                                sum+=count[i];
+                                if(ratings[i]<ratings[i-1] && count[i]>=count[i-1]) {
+                                    count[i-1] = count[i]+1;
+                                }
+                            }
+                            sum+=count[0];
+                            return sum;
+                        }
+                    }
+
+4.palindrome-partitioning
+  Given a string s, partition s such that every substring of the partition is a palindrome.
+  Return the minimum cuts needed for a palindrome partitioning of s.
+  For example, given s ="aab",
+  Return1since the palindrome partitioning["aa","b"]could be produced using 1 cut.
+
+                  public class Solution {
+                  public int minCut(String s) {
+                          int []dp=new int[s.length()+1];
+                          boolean [][]p=new boolean[s.length()][s.length()];
+                          dp[s.length()]=-1;//确保dp[s.length()-1]=0
+                          for(int i=s.length()-1;i>=0;i--){
+                              dp[i]=Integer.MAX_VALUE;
+                              for(int j=i;j<s.length();j++){
+                                  if(s.charAt(i)==s.charAt(j) && (j-i<2||p[i+1][j-1])){
+                                      p[i][j]=true;
+                                      dp[i]=Math.min(dp[i],dp[j+1]+1);
+                                  }
+                              }
+                          }
+                          return dp[0];
+                      }
+                  }
+
+5.trangle
+  Given a triangle, find the minimum path sum from top to bottom. Each step you may move to adjacent numbers on the row below.
+  For example, given the following triangle
+  [
+       [2],
+      [3,4],
+     [6,5,7],
+    [4,1,8,3]
+  ]
+
+  The minimum path sum from top to bottom is11(i.e., 2 + 3 + 5 + 1 = 11).
+  Note: 
+  Bonus point if you are able to do this using only O(n) extra space, where n is the total number of rows in the triangle.
+
+                    import java.util.*;
+                    public class Solution {
+                        public int minimumTotal(ArrayList<ArrayList<Integer>> triangle) {
+                            int[][] arr=new int[triangle.size()][triangle.size()];
+                            arr[0][0]=triangle.get(0).get(0);
+                            for(int i=1;i<triangle.size();i++){
+                                for (int j=0;j<triangle.get(i).size();j++){
+                                    if (j==0)
+                                        arr[i][j]=triangle.get(i).get(j)+arr[i-1][j];
+                                    else if (j==triangle.get(i).size()-1)
+                                        arr[i][j]=triangle.get(i).get(j)+arr[i-1][j-1];
+                                    else
+                                        arr[i][j]=Math.min(arr[i-1][j],arr[i-1][j-1])+triangle.get(i).get(j);
+                                }
+                            }
+                            int min=Integer.MAX_VALUE;
+                            for (int j=0;j<arr.length;j++){
+                                if (min>arr[arr.length-1][j]) 
+                                    min=arr[arr.length-1][j];
+                            }
+                            return min;
+                        }
+                    }
+
+6.distinct-subsequence
+  Given a string S and a string T, count the number of distinct subsequences of T in S.
+  A subsequence of a string is a new string which is formed from the original string by deleting some (can be none) of
+  the characters without disturbing the relative positions of the remaining characters. 
+  (ie,"ACE"is a subsequence of"ABCDE"while"AEC"is not).
+  Here is an example:
+  S ="rabbbit", T ="rabbit"
+  Return3.
+ 
+                    /*
+                     *  思路：dp题。
+                     *  状态定义：dp[i][j]代表s[0~i-1]中T[0~j-1]不同子串的个数。
+                     *  递推关系式：S[i-1]!= T[j-1]：  DP[i][j] = DP[i][j-1] （不选择S中的s[i-1]字符）
+                     *              S[i-1]==T[j-1]： DP[i][j] = DP[i-1][j-1]（选择S中的s[i-1]字符） + DP[i][j-1]
+                     *  初始状态：第0列：DP[i][0] = 0，第0行：DP[0][j] = 1
+                     */
+
+                    public class Solution {
+                        public int numDistinct(String S, String T) {
+                            int row = S.length() + 1;
+                            int col = T.length() + 1;
+                            int[][] dp = new int[row][col];
+                            for (int i = 1; i < col; i++) {
+                                dp[0][i] = 0;
+                            }
+                            for (int i = 0; i < row; i++) {
+                                dp[i][0] = 1;
+                            }
+                            for (int i = 1; i < row; i++) {
+                                for (int j = 1; j < col; j++) {
+                                    if (S.charAt(i - 1) == T.charAt(j - 1)) {
+                                        dp[i][j] = dp[i - 1][j - 1] + dp[i - 1][j];
+                                    } else {
+                                        dp[i][j] = dp[i - 1][j];
+                                    }
+                                }
+                            }
+                            return dp[row - 1][col - 1];
+                        }
+                    }
+  
+
+7.interleaving-string
+  Given s1, s2, s3, find whether s3 is formed by the interleaving of s1 and s2.
+  For example,
+  Given:
+  s1 ="aabcc",
+  s2 ="dbbca",
+  When s3 ="aadbbcbcac", return true.
+  When s3 ="aadbbbaccc", return false.
+                    public class Solution {
+                        public boolean isInterleave(String s1, String s2, String s3) {
+                            int len1 = s1.length();
+                            int len2 = s2.length();
+                            int len3 = s3.length();
+
+                            if(len1+len2 !=len3){
+                              return false;
+                            }
+
+                            char[] chs1 = s1.toCharArray();
+                            char[] chs2 = s2.toCharArray();
+                            char[] chs3 = s3.toCharArray();
+
+                            //dp[i][j]代表 chs1[0...i]  chs2[0...j]能否顺序匹配chs3[i+j]
+                            boolean[][] dp = new boolean[len1+1][len2+1];
+                            //初始化 s1中取0个字符 s2中取0个字符 匹配s3从0开始的0个字符 肯定匹配true
+                            dp[0][0] = true;
+
+                            //s1中取0个s2中取i个 去和s3中0+i 个匹配
+                            for(int i = 1 ; i < len2 + 1; i ++ ){
+                              dp[0][i] = dp[0][i-1] && chs2[i-1] == chs3[i-1];
+                            }
+                            //s2中取0个s1中取i个 去和s3中0+i 个匹配
+                            for(int i = 1 ; i < len1 + 1; i ++ ){
+                              dp[i][0] = dp[i-1][0] && chs1[i-1] == chs3[i-1];
+                            }
+
+                            for(int i = 1 ; i < len1+1 ; i ++ ){
+                              for(int j = 1 ; j < len2+1 ; j ++ ){
+                                dp[i][j] = dp[i-1][j] && (chs3[i+j-1] == chs1[i-1])
+                                    || dp[i][j-1] && (chs3[i+j-1] == chs2[j-1]);
+                              }
+                            }
+
+                            return dp[len1][len2];
+                        }
+                    }
+
+8.subsets-ii
+  Given a collection of integers that might contain duplicates, S, return all possible subsets.
+  Note:
+  Elements in a subset must be in non-descending order.
+  The solution set must not contain duplicate subsets.
+
+  For example,
+  If S =[1,2,2], a solution is:
+  [
+    [2],
+    [1],
+    [1,2,2],
+    [2,2],
+    [1,2],
+    []
+  ]
+                    //递归，和subseti就多了一个判断而已，碰到和上一个数相等则跳过
+                    import java.util.ArrayList;
+                    import java.util.Arrays;
+                    public class Solution {
+                        ArrayList<ArrayList<Integer>> listAll = new ArrayList<>();
+                        public ArrayList<ArrayList<Integer>> subsetsWithDup(int[] num) {
+                            if (num == null || num.length <= 0)
+                                return listAll;
+                            ArrayList<Integer> list = new ArrayList<>();
+                            Arrays.sort(num);
+                            Findsubset(num, 0, list);
+                            return listAll;
+                        }
+
+                        public void Findsubset(int[] set, int start, ArrayList<Integer> list) {
+                            listAll.add(new ArrayList<>(list));
+                            for (int i = start; i < set.length; i++) {
+                                if (i > start && set[i] == set[i - 1])
+                                    continue;
+                                list.add(set[i]);
+                                Findsubset(set, i + 1, list);
+                                list.remove(list.size() - 1);
+                            }
+                        }
+                    }
+8.decode-ways
+  A message containing letters fromA-Zis being encoded to numbers using the following mapping:
+      'A' -> 1
+      'B' -> 2
+      ...
+      'Z' -> 26
+  Given an encoded message containing digits, determine the total number of ways to decode it.
+  For example,
+  Given encoded message"12", it could be decoded as"AB"(1 2) or"L"(12).
+  The number of ways decoding"12"is 2.
+  
+                    public class Solution {
+                        public int numDecodings(String s) {
+                            if(s.length()==0) return 0;
+                            int [] dp = new int[s.length()+1];
+                            dp[0]=1;
+                            if(s.length()>0&&s.charAt(0)>'0')
+                            dp[1]=1;
+                            for(int i=2;i<=s.length();i++){
+                                if(s.charAt(i-1)>'0')
+                                  dp[i]=dp[i-1];
+                                if(s.charAt(i-2)>'0'){
+                                int t  =Integer.parseInt(s.substring(i-2,i));
+                                if(t<=26&&t>0)
+                                  dp[i]+=dp[i-2];
+                                }
+                            }
+                            return dp[s.length()];
+                        }
+                    }
+
+9.gray-code
+  The gray code is a binary numeral system where two successive values differ in only one bit.
+  Given a non-negative integer n representing the total number of bits in the code, print the sequence of gray code. A gray code sequence must begin with 0.
+  For example, given n = 2, return[0,1,3,2]. Its gray code sequence is:
+  00 - 0
+  01 - 1
+  11 - 3
+  10 - 2
+  Note: 
+  For a given n, a gray code sequence is not uniquely defined.
+  For example,[0,2,3,1]is also a valid gray code sequence according to the above definition.
+  For now, the judge is able to judge based on one instance of gray code sequence. Sorry about that.
+
+                          import java.util.ArrayList;
+                          public class Solution {
+                              public ArrayList<Integer> grayCode(int n) {
+                                  ArrayList<Integer> result = new ArrayList<>();
+                                  if (n < 0)
+                                      return result;
+                                  if (n == 0) {
+                                      result.add(0);
+                                      return result;
+                                  }
+                                  result.add(0);
+                                  result.add(1);
+                                  for (int i = 2; i <= n; i++) {
+                                      int size = result.size();
+                                      for (int j = size - 1; j >= 0; j--) {
+                                          result.add(result.get(j) + (1<<(i-1)));
+                                      }
+                                  }
+                                  return result;
+                              }
+                          }
+10. subsets-i
+Given a set of distinct integers, S, return all possible subsets.
+Note:
+Elements in a subset must be in non-descending order.
+The solution set must not contain duplicate subsets.
+
+For example,
+If S =[1,2,3], a solution is:
+[
+  [3],
+  [1],
+  [2],
+  [1,2,3],
+  [1,3],
+  [2,3],
+  [1,2],
+  []
+]
+                      import java.util.*;
+                      public class Solution {
+                          List<List<Integer>> result=new ArrayList<List<Integer>>();
+                          public List<List<Integer>> subsets(int[] nums) {
+                              List<Integer> list=new ArrayList<Integer>();
+                              Arrays.sort(nums);
+                              for(int j=0;j<=nums.length;j++)
+                                  backtracking(nums,j,0,list);
+                              return result;
+                          }
+                          public void backtracking(int[] nums,int k,int start,List<Integer> list){
+                              if(k<0)  return;
+                              else if(k==0)
+                                  result.add(new ArrayList(list));
+                              else{
+                                  for(int i=start;i<nums.length;i++){
+                                      list.add(nums[i]);
+                                      backtracking(nums,k-1,i+1,list);
+                                      list.remove(list.size()-1);
+                                  }
+                              }
+                          }
+                      }
+
+11.edit-distance
+  Given two words word1 and word2, find the minimum number of steps required to convert word1 to word2. 
+  (each operation is counted as 1 step.)
+  You have the following 3 operations permitted on a word:
+  a) Insert a character
+  b) Delete a character
+  c) Replace a character
+                    public class Solution {
+                        public int minDistance(String word1, String word2) {
+                            if(word1 == null && word2 == null)
+                                return 0;
+                            if(word1 == null)
+                                return word2.length();
+                            if(word2 == null)
+                                return word1.length();
+
+                            // dp[i][j]代表由word1的前i个子串变为word2的前j个子串的花费
+                            // 其中i，j均可为0，代表空串:""
+                            int[][] dp = new int[word1.length() + 1][word2.length() + 2];
+                            dp[0][0] = 0;
+                            // 首先初始化两个子串中有一个为空串的情况
+                            for(int i = 1; i <= word1.length(); i++){
+                                dp[i][0] = i;
+                            }
+                            for(int j = 1; j <= word2.length(); j++){
+                                dp[0][j] = j;
+                            }
+
+                            for(int i = 1; i <= word1.length(); i++){
+                                for(int j = 1; j <= word2.length(); j++){
+                                    // 如果这两个字符相等，那么交由上一种情况处理,如abc，dfc
+                                    // 这种情况与ab，df花费是一样的
+                                    // 不然就要在删除，插入，修改中取花费最小的那个
+                                    if(word1.charAt(i - 1) == word2.charAt(j - 1))
+                                        dp[i][j] = dp[i-1][j-1];
+                                    else
+                                        dp[i][j] = Math.min(Math.min(dp[i-1][j], dp[i][j-1]), dp[i-1][j-1]) + 1;
+                                }
+                            }
+                            return dp[word1.length()][word2.length()];
+                        }
+                    }
+
+12.climbing-stair
+    You are climbing a stair case. It takes n steps to reach to the top.
+    Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?
+
+                                 public class Solution {
+                                  public int climbStairs(int n) {
+                                      if(n==1||n==2) return n;
+                                      int[] dp=new int[n];
+                                      dp[0]=1;dp[1]=2;
+                                      for(int i=2;i<n;i++)
+                                          dp[i]=dp[i-1]+dp[i-2];
+                                      return dp[n-1];
+                                  }
+                              }
+
+13.minimum-path-sum
+    Given a m x n grid filled with non-negative numbers, find a path from top left to bottom right 
+    which minimizes the sum of all numbers along its path.
+    Note: You can only move either down or right at any point in time.
+
+                      public class Solution {
+                          public int minPathSum(int[][] grid) {
+                              int m =grid.length;
+                              int n = grid[0].length;
+                              if(grid==null || m==0 || n==0) return 0;
+
+                              int[][]res = new int[m][n];
+                              res[0][0] = grid[0][0];
+                              for(int i = 1;i<n;i++){
+                                  res[0][i] = res[0][i-1]+grid[0][i];
+                              }
+                              for(int i = 1;i<m;i++){
+                                  res[i][0] = res[i-1][0]+grid[i][0];
+                              }
+                              for(int i = 1;i<m;i++){
+                                  for(int j=1;j<n;j++){
+                                      res[i][j] = Math.min(res[i-1][j],res[i][j-1])+grid[i][j];
+                                  }
+                              }
+                              return res[m-1][n-1];
+                          }
+                      }
+14.unique-path-i
+  A robot is located at the top-left corner of a m x n grid (marked 'Start' in the diagram below).
+  The robot can only move either down or right at any point in time. The robot is trying to reach the bottom-right corner of the grid (marked 'Finish' in the diagram below).
+  How many possible unique paths are there?
+
+  Above is a 3 x 7 grid. How many possible unique paths are there?
+  Note: m and n will be at most 100.
+
+                              public class Solution {
+                                  public int uniquePaths(int m, int n) {
+                                      int[][] dp = new int[m][n];
+                                      for (int i = 0; i < m; i ++)
+                                          dp[i][0] = 1;
+                                      for (int i = 0; i < n; i ++)
+                                          dp[0][i] = 1;
+                                      for (int i = 1; i < m; i ++)
+                                          for (int j = 1; j < n; j ++)
+                                              dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+                                      return dp[m - 1][n - 1];
+                                  }
+                              }
+15.unique-path-ii
+    Follow up for "Unique Paths":
+    Now consider if some obstacles are added to the grids. How many unique paths would there be?
+    An obstacle and empty space is marked as1and0respectively in the grid.
+    For example,
+    There is one obstacle in the middle of a 3x3 grid as illustrated below.
+    [
+      [0,0,0],
+      [0,1,0],
+      [0,0,0]
+    ]
+    The total number of unique paths is2.
+    Note: m and n will be at most 100.
+
+                    public class Solution {
+                        public int uniquePathsWithObstacles(int[][] obstacleGrid) {
+                            int[][] dp = new int[obstacleGrid.length][obstacleGrid[0].length];
+                            for (int i = 0; i < dp.length; i ++ ) {
+                                if(obstacleGrid[i][0] == 1) break;
+                                dp[i][0] = 1;
+                            }
+                            for (int i = 0; i < dp[0].length; i ++ ) {
+                                if(obstacleGrid[0][i] == 1) break;
+                                dp[0][i] = 1;
+                            }
+                            for (int i = 1; i < dp.length; i ++ ) {
+                                for (int j = 1; j < dp[0].length; j ++ ) {
+                                    if(obstacleGrid[i][j] == 1) dp[i][j] = 0;
+                                    else dp[i][j] = dp[i - 1][j] + dp[i][j - 1];
+                                }
+                            }
+                            return dp[dp.length - 1][dp[0].length - 1];
+                        }
+                    }
+
+
+
+
+
+
