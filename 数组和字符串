@@ -1,0 +1,711 @@
+1.Search-in-Rotated-Sorted-Array-i
+题目：
+  Suppose a sorted array is rotated at some pivot unknown to you beforehand.
+  (i.e.,0 1 2 4 5 6 7might become4 5 6 7 0 1 2).
+  You are given a target value to search. If found in the array return its index, otherwise return -1.
+  You may assume no duplicate exists in t he array.
+  
+                        public int search(int[] A, int target) {
+                              int first=0,last=A.length-1;
+                              while(first<=last){
+                                  int mid=(first+last)/2;
+                                  if(A[mid]==target) return mid;
+                                  //有序
+                                  if(A[first]<=A[mid]){
+                                      if(A[first]<=target&&A[mid]>=target)
+                                          last=mid-1;
+                                      else
+                                          first=mid+1;
+                                  }
+                                  else{
+                                      if(A[last]>=target&&A[mid]<=target)
+                                          first=mid+1;
+                                      else
+                                          last=mid-1;
+                                  }
+                              }
+                              return -1;
+                          }
+
+2.Search-in-Rotated-Sorted-Array-ii
+题目：
+  Follow up for "Search in Rotated Sort
+  ed Array":
+  What if duplicates are allowed?
+  Would this affect the run-time complexity? How and why?
+  Write a function to determine if a given target is in the array.
+                    
+                    public class Solution {
+                    public boolean search(int[] nums, int target) {
+                            if (nums == null || nums.length < 1)
+                                return false;
+                            int left = 0, right = nums.length - 1;
+                            int mid;
+                            while (left <= right) {
+                                mid = left + (right - left) / 2;
+                                if (target == nums[mid]) {
+                                    return true;
+                                }
+                                if (nums[mid] > nums[left]) {
+                                    if (target < nums[mid] && target >= nums[left])
+                                        right = mid - 1;
+                                    else
+                                        left = mid + 1;
+                                } else if (nums[mid] < nums[left]) {
+                                    if (target > nums[mid] && target <= nums[right])
+                                        left = mid + 1;
+                                    else
+                                        right = mid - 1;
+                                } else {
+                                    // nums[left]==nums[mid]
+                                    if (nums[right] > nums[mid] && target > nums[mid] && target <= nums[right])
+                                        left = mid + 1;
+                                    else {
+                                        //如果left，mid，right三个元素都相同，或者left，mid相同，
+                                        //target不在[mid,right]递增区间里，只能循环遍历
+                                        for (int i = left; i <= right; i++)
+                                            if (target == nums[i]) {
+                                                return true;
+                                            }
+                                        break;
+                                    }
+                                }
+                            }
+                            return false;
+                        }
+                    } 
+  
+  3.word-search  
+    Given a 2D board and a word, find if the word exists in the grid.
+    The word can be constructed from letters of sequentially adjacent cell, where "adjacent" cells are those
+    horizontally or vertically neighboring. The same letter cell may not be used more than once.
+    For example,
+    Given board =
+    [
+      ["ABCE"],
+      ["SFCS"],
+      ["ADEE"]
+    ]
+    word ="ABCCED", -> returnstrue,
+    word ="SEE", -> returnstrue,
+    word ="ABCB", -> returnsfalse.
+  
+                      public class Solution {
+                        public boolean exist(char[][] board, String word) {
+                            int m = board.length;
+                            int n = board[0].length;
+                            boolean[][] visited = new boolean[m][n];
+                            for(int i = 0; i < m; i++){
+                                for(int j = 0; j < n; j++){
+                                    if(dfs(board, word, visited, i, j, m, n, 0))
+                                       return true;
+                                }
+                            }
+                            return false;
+                        }
+
+                        private boolean dfs(char[][] board, String word, boolean[][] visited, int i, int j, int m, int n, int count){
+                            if(count == word.length()){
+                                return true;
+                            }
+                            if(i < 0 || i >= m || j < 0 || j >= n || board[i][j] != word.charAt(count))
+                                return false;
+                            if(visited[i][j])
+                                return false;
+                            visited[i][j] = true;
+                            boolean res = dfs(board, word, visited, i - 1, j, m, n, count + 1) ||
+                                dfs(board, word, visited, i + 1, j, m, n, count + 1) ||
+                                dfs(board, word, visited, i, j - 1, m, n, count + 1)||
+                                dfs(board, word, visited, i, j + 1, m, n, count + 1);
+                            visited[i][j] = false;
+                            return res;
+                        }
+                    }
+  
+ 
+ //回溯
+ 4.combination
+    Given two integers n and k, return all possible combinations of k numbers out of 1 ... n.
+    For example,
+    If n = 4 and k = 2, a solution is:
+    [
+      [2,4],
+      [3,4],
+      [2,3],
+      [1,2],
+      [1,3],
+      [1,4],
+    ]
+                          import java.util.ArrayList;
+                          import java.util.Arrays;
+                          import java.util.List;
+
+                          public class Solution {
+                              public ArrayList<ArrayList<Integer>> combine(int n, int k) {
+                              ArrayList<ArrayList<Integer>> resultList = new ArrayList<>();
+                              getAllCombineList(1, n, k, resultList, new ArrayList<>());
+
+                              return resultList;
+                              }
+
+                             public void getAllCombineList(int start, int n, int k,
+                                ArrayList<ArrayList<Integer>> resultList,
+                                ArrayList<Integer> list) {
+                              if (k == 0) {
+                                resultList.add(new ArrayList<>(list));
+                                return;
+                              }
+
+                              for (int i = start; i <= n; i++) {
+                                list.add(i);
+                                getAllCombineList(i + 1, n, k - 1, resultList, list);
+                                list.remove(list.size() - 1);//回退
+                              }
+                            }
+                          }
+  
+5.
+  Given a set of candidate numbers ( C ) and a target number ( T ), find all unique combinations in C where the candidate numbers sums to T .
+  The same repeated number may be chosen from C unlimited number of times.
+  Note:
+  All numbers (including target) will be positive integers.
+  Elements in a combination (a 1, a 2, … , a k) must be in non-descending order. (ie, a 1 ≤ a 2 ≤ … ≤ a k).
+  The solution set must not contain duplicate combinations.
+
+    For example, given candidate set2,3,6,7and target7, 
+    A solution set is: 
+    [7]
+    [2, 2, 3]
+  
+                              import java.util.ArrayList;
+                              import java.util.Arrays;
+                              public class Solution {
+                                  public ArrayList<ArrayList<Integer>> combinationSum(int[] candidates, int target) {
+                                  ArrayList<ArrayList<Integer>> resultList = new ArrayList<>();
+                                  if (candidates == null || candidates.length == 0 || target < 0) {
+                                    return resultList;
+                                  }
+                                  Arrays.sort(candidates);
+                                  combinationSumHelper(resultList, new ArrayList<>(), candidates, 0, target);
+                                  return resultList;
+                                  }
+
+                                  //还是递归的思路
+                                  private void combinationSumHelper(ArrayList<ArrayList<Integer>> resultList,
+                                    ArrayList<Integer> result, int[] candidates, int start, int target) {
+                                  if (target < 0) {
+                                    return;
+                                  }
+                                  if (target == 0) {
+                                    resultList.add(new ArrayList<>(result));
+                                  }
+
+                                  int index = start - 1 < 0 ? 0 : start - 1;
+                                  for (int i = index; i < candidates.length; i++) {
+                                    result.add(candidates[i]);
+                                    combinationSumHelper(resultList, result, candidates, i + 1, target - candidates[i]);
+                                    result.remove(result.size() - 1);
+                                  }
+                                }
+                              }
+  
+ 6. 
+  Given a collection of candidate numbers ( C ) and a target number ( T ), find all unique combinations in C where the
+  candidate numbers sums to T .
+  Each number in C may only be used once in the combination.
+  Note:
+  All numbers (including target) will be positive integers.
+  Elements in a combination (a 1, a 2, … , a k) must be in non-descending order. (ie, a 1 ≤ a 2 ≤ … ≤ a k).
+  The solution set must not contain duplicate combinations.
+
+  For example, given candidate set10,1,2,7,6,1,5and target8, 
+  A solution set is: 
+  [1, 7]
+  [1, 2, 5]
+  [2, 6]
+  [1, 1, 6]
+  
+                                import java.util.*;
+                                public class Solution {
+                                    ArrayList<ArrayList<Integer>> all =new ArrayList<>();
+                                    ArrayList<Integer> one =new ArrayList<>();
+                                    public ArrayList<ArrayList<Integer>> combinationSum2(int[] num, int target) {   
+                                          Arrays.sort(num);
+                                        dfs(num, target,0,0);
+                                        return all;
+                                    }
+
+                                     public  void dfs(int num[],int target,int sum,int start)
+                                   {
+                                       if(sum>target)  return;
+                                       if(sum==target)
+                                       {
+                                           if(!all.contains(one))
+                                           all.add(new ArrayList<>(one));
+                                           return;
+                                       }
+                                     for(int i=start;i<num.length;i++)
+                                     {
+                                         one.add(num[i]);
+                                         dfs(num,target,sum+num[i],i+1);
+                                         one.remove(one.size()-1);
+                                     }
+                                   }
+                                }
+
+8. search-insert-position
+    Given a sorted array and a target value, return the index if the target is found. 
+    If not, return the index where it would be if it were inserted in order.
+    You may assume no duplicates in the array.
+    Here are few examples.
+    [1,3,5,6], 5 → 2
+    [1,3,5,6], 2 → 1
+    [1,3,5,6], 7 → 4
+    [1,3,5,6], 0 → 0
+  
+                           public class Solution {
+                            public int searchInsert(int[] A, int target) {
+                                // 二分查找
+                                int low = 0;
+                                int high = A.length - 1;
+                                while (low <= high) {
+                                    int mid = (low + high) / 2;
+                                    if(A[mid] == target) return mid;
+                                    else if(A[mid] < target) low = mid + 1;
+                                    else high = mid - 1;
+                                }
+                                // 没找到返回low,即插入位置
+                                return low;
+                            }
+                        }
+  
+  8.searcn-for-a-range
+    Given a sorted array of integers, find the starting and ending position of a given target value.
+    Your algorithm's runtime complexity must be in the order of O(log n).
+    If the target is not found in the array, return[-1, -1].
+    For example,
+    Given[5, 7, 7, 8, 8, 10]and target value 8,
+    return[3, 4].
+    
+                            public class Solution {
+                            public int[] searchRange(int[] A, int target) {
+                                int[] a = {-1,-1};
+                                if(A==null||a.length<2)
+                                    return a;
+                                int low, high, mid;
+                                low = 0;
+                                high = A.length - 1;
+
+                                while (low <= high) {
+                                    mid = (high + low) / 2;
+                                    if (target == A[mid]) {
+                                        int temp = mid;
+                                        //向前搜索
+                                        while (mid - 1 >=0 && A[mid - 1] == target) {
+                                            mid--;
+                                        }
+                                        a[0] = mid;
+                                        mid = temp;
+                                        //向后搜索
+                                        while (mid + 1 < A.length && A[mid + 1] == target) {
+                                            mid++;
+                                        }
+                                        a[1] = mid;
+                                        break;
+                                    } else if (target < A[mid]) {
+                                        high = mid - 1;
+                                    } else {
+                                        low = mid + 1;
+                                    }
+                                }
+                                return a;
+                            }
+                        }
+  
+  9.  generate-parentheses
+      Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.
+      For example, given n = 3, a solution set is:
+      "((()))", "(()())", "(())()", "()(())", "()()()"
+  
+                                  import java.util.ArrayList;
+                                  public class Solution {
+                                      ArrayList<String> r = new ArrayList<String>();
+                                      public ArrayList<String> generateParenthesis(int n) {
+                                          //保证左边‘（’的数量始终大于等于右边的‘）’数量，可以考虑回溯法
+                                          gp("",0,0,n);
+                                          return r;
+                                      }
+                                      private void gp(String s,int left,int right,int n){
+                                          if(right == n){
+                                              r.add(s);
+                                          }
+                                          if(left < n){
+                                              gp(s+"(",left+1,right,n);
+                                          }
+                                          // 递归过程中 左括号x的个数必须大于等于右括号个数
+                                          if(left > right){
+                                              gp(s+")",left,right+1,n);
+                                          }
+                                      }
+                                  }
+ 
+ 10.longest-consecutive-sequence
+    Given an unsorted array of integers, find the length of the longest consecutive elements sequence.
+    For example,
+    Given[100, 4, 200, 1, 3, 2],
+    The longest consecutive elements sequence is[1, 2, 3, 4]. Return its length:4.
+    Your algorithm should run in O(n) complexity. 
+    
+       方法一：import java.util.Arrays;
+              public class Solution {
+                  //利用map的查找时间为o（1）的特性,拿空间换时间
+                  public int longestConsecutive(int[] num) {
+                      Arrays.sort(num);
+                      int maxlength=1;
+                      int max=1;
+                      for(int i=1;i<num.length;i++)
+                      {
+                          //
+                          if(num[i]==num[i-1]+1)
+                          {
+                              maxlength++;
+                              max=Math.max(max,maxlength);
+                              continue;
+                          } 
+                          else if(num[i]==num[i-1]) continue;
+                          else maxlength=1;
+                      }
+                      return max;
+                  }
+              }
+              
+                   方法二：     /*if(num==null||num.length==0){
+                                return 0;
+                            }
+                            if(num.length==1){
+                                return 1;
+                            }
+                            HashMap<Integer,Boolean>map=new HashMap<>();
+                            for(int i=0;i<num.length;++i){//将数组里的数存储进map
+                                map.put(num[i],true);
+                            }
+                            int pre;//当前数的前一个数
+                            int curr;//当前数
+                            int post;//后一个数
+                            int max=1;//暂时的最大连续值
+                            int maxmax=max;//我们记录的当前最大的连续值
+                            for(int i=0;i<num.length;++i){
+                                if(map.get(num[i])==true){//还未被访问
+                                curr=num[i];
+                                pre=num[i]-1;
+                                post=num[i]+1;
+                                while(map.containsKey(pre)){//一直找前面那个数
+                                    map.put(pre,false);//置值为false，下次不用再访问
+                                    max++;//最大连续数加一
+                                    pre--;//前面的那个数的数值减一
+                                }
+                                while(map.containsKey(post)){//同上
+                                    map.put(post,false);
+                                    max++;
+                                    post++;
+                                }
+                                    if(max>maxmax){//两个循环结束后，判断当前的最大连续值是否大于咱们存储的那个最大连续值
+                                        maxmax=max;
+                                    }
+                                    max=1;//置max为1
+                                }
+                            }
+                            return maxmax;
+                        }
+}*/
+
+11.股票问题1-只允许一次交易
+    Say you have an array for which the i th element is the price of a given stock on day i.
+    If you were only permitted to complete at most one transaction (ie, buy one and sell one share of the stock), 
+    design an algorithm to find the maximum profit.
+  
+                                  public class Solution {
+                                    public int maxProfit(int[] prices) {
+                                        if(prices==null||prices.length<=0)
+                                            return 0;
+                                        int min=Integer.MAX_VALUE;
+                                        int max=Integer.MIN_VALUE;
+                                        for(int i=0;i<prices.length;i++)
+                                        {
+                                            min=Math.min(min,prices[i]);
+                                            max=Math.max(max,prices[i]-min);
+                                        }
+                                        return max;
+                                    }
+                                }
+  
+ 12.股票问题2 -允许尽量多次交易  
+    Say you have an array for which the i th element is the price of a given stock on day i.
+    Design an algorithm to find the maximum profit. You may complete as many transactions as you like 
+    (ie, buy one and sell one share of the stock multiple times).
+    However, you may not engage in multiple transactions at the same time (ie, you must sell the stock before you buy again).
+    
+                              public class Solution {
+                                public int maxProfit(int[] prices) {
+                                    if(prices == null || prices.length<2)
+                                        return 0;
+                                    int res = 0;
+                                    for(int i =1;i<prices.length;i++){
+                                        if(prices[i]>prices[i-1])
+                                            res += prices[i]-prices[i-1];
+                                    }
+                                    return res;
+                                }
+                            }
+  
+13. 股票问题3 -允许尽量两次次交易  
+    Say you have an array for which the i th element is the price of a given stock on day i.
+    Design an algorithm to find the maximum profit. You may complete at most two transactions.
+    Note: 
+    You may not engage in multiple transactions at the same time (ie, you must sell the stock before you buy again).
+  
+  public class Solution {
+    public int maxProfit(int[] prices) {
+        int hold1 = Integer.MIN_VALUE, hold2 = Integer.MIN_VALUE;
+        int release1 = 0, release2 = 0;
+        for(int i:prices){                              // Assume we only have 0 money at first
+            release2 = Math.max(release2, hold2+i);     // The maximum if we've just sold 2nd stock so far.
+            hold2    = Math.max(hold2,    release1-i);  // The maximum if we've just buy  2nd stock so far.
+            release1 = Math.max(release1, hold1+i);     // The maximum if we've just sold 1nd stock so far.
+            hold1    = Math.max(hold1,    -i);          // The maximum if we've just buy  1st stock so far.
+        }
+        return release2; ///Since release1 is initiated as 0, so release2 will always higher than release1.
+    }
+}
+  
+14.  merge-sorted-array
+    Given two sorted integer arrays A and B, merge B into A as one sorted array.
+    Note: 
+    You may assume that A has enough space to hold additional elements from B. 
+    The number of elements initialized in A and B are m and n respectively.
+  
+                                public class Solution {
+                                public void merge(int A[], int m, int B[], int n) {
+                                        int i=0,j=0;
+                                        while (i<m&&j<n){
+                                          if (A[i]<=B[j]){
+                                              i++;
+                                          }else {
+                                              for (int x=m;x>i;x-- ){
+                                                    A[x]=A[x-1];
+                                              }
+                                              A[i++]=B[j++];
+                                              m++;
+                                          }
+                                        }
+                                        while (i>=m&&j<n){
+                                            A[i++]=B[j++];
+                                        }
+                                    }
+                                }  
+  
+  15.Remove Duplicates for sorted array
+    Follow up for "Remove Duplicates":
+    What if duplicates are allowed at most twice?
+    For example,
+    Given sorted array A =[1,1,1,2,2,3],
+    Your function should return length =5, and A is now[1,1,2,2,3].
+  
+                                public class Solution {
+                                  public int removeDuplicates(int[] A) {
+                                      if (A == null || A.length <= 2) {
+                                          return A == null ? 0 : A.length;
+                                      }
+                                      int count = 2;
+                                      for (int i = 2; i < A.length; i++) {
+                                          if ( A[i] != A[count - 2]) {
+                                              A[count++] = A[i];//A[count]==A[i];count+1;
+                                          }
+                                      }
+                                      return count;
+                                  }
+                              }
+
+  16.sort-color
+    Given an array with n objects colored red, white or blue, sort them so that objects of the same color are adjacent,
+    with the colors in the order red, white and blue.
+    Here, we will use the integers 0, 1, and 2 to represent the color red, white, and blue respectively.
+    Note: 
+    You are not suppose to use the library's sort function for this problem.
+    click to show follow up.
+    Follow up: 
+    A rather straight forward solution is a two-pass algorithm using counting sort.
+    First, iterate the array counting number of 0's, 1's, and 2's, then overwrite array with total number of 0's, 
+    then 1's and followed by 2's.
+    Could you come up with an one-pass algorithm using only constant space?
+                                /*
+                                * 桶排序的应用。
+                                * 类似于剑指offer中的年龄排序问题
+                                * 时间复杂度O(n)
+                                * 空间复杂度O(n)
+                                * 很经典的牺牲空间换时间的解法
+                                * leetcode测试结果：Runtime: 0 ms.Your runtime beats 61.03 % of java submissions.
+                                */
+                                public void sortColors(int[] nums) {
+                                        int[] count = new int[3];
+                                        for (int i = 0; i < nums.length; i++) {
+                                            if (nums[i] == 0)
+                                                count[0]++;
+                                            else if (nums[i] == 1)
+                                                count[1]++;
+                                            else
+                                                count[2]++;
+                                        }
+                                        int index = 0;
+                                        for (int i = 0; i < count[0]; i++) {
+                                            nums[index++] = 0;
+                                        }
+                                        for (int i = 0; i < count[1]; i++) {
+                                            nums[index++] = 1;
+                                        }
+                                        for (int i = 0; i < count[2]; i++) {
+                                            nums[index++] = 2;
+                                        }
+
+                                    }
+  
+ 17. search-a-2d-matrix
+  Write an efficient algorithm that searches for a value in an m x n matrix. This matrix has the following properties:
+  Integers in each row are sorted from left to right.
+  The first integer of each row is greater than the last integer of the previous row.
+
+  For example,
+  Consider the following matrix:
+  [
+    [1,   3,  5,  7],
+    [10, 11, 16, 20],
+    [23, 30, 34, 50]
+  ]
+  Given target =3, return true.
+                                    public class Solution {
+                                      public boolean searchMatrix(int[][] matrix, int target) {
+                                           /*二维数组的行数和列数*/
+                                          int rowCount = matrix.length;
+                                          int colCount = matrix[0].length;
+                                          int i, j;//i指定行的变化,j指定列的变化
+                                         //循环
+                                          for (i = rowCount - 1, j = 0; i >= 0 && j<colCount;)
+                                          {
+                                              if (target == matrix[i][j]){
+                                                  return true;
+                                              }
+                                              else if (target<matrix[i][j])
+                                              {
+                                                  i--;
+                                                  continue;
+                                              }
+                                              else if(target>matrix[i][j])
+                                              {
+                                                  j++;
+                                                  continue;
+                                              }
+                                          }
+                                          return false;
+                                      }
+                                  }
+  
+  18.merge-intervals  
+      Given a collection of intervals, merge all overlapping intervals.
+      For example,
+      Given[1,3],[2,6],[8,10],[15,18],
+      return[1,6],[8,10],[15,18].
+
+                                    import java.util.*;
+                                  public class Solution {
+                                      public ArrayList<Interval> merge(ArrayList<Interval> intervals) {
+                                          Collections.sort(intervals, new Comparator<Interval>() {
+                                              public int compare(Interval o1, Interval o2) {
+                                                  return o1.start-o2.start;
+                                              }
+                                          });
+                                          for (int i = 1; i < intervals.size(); i++) {
+                                              int preStart = intervals.get(i - 1).start;
+                                              int preEnd = intervals.get(i - 1).end;
+                                              int curStart = intervals.get(i).start;
+                                              int curEnd = intervals.get(i).end;
+                                              if (curStart <= preEnd) {
+                                                  intervals.set(i, new Interval(preStart, Math.max(preEnd, curEnd)));
+                                                  intervals.set(i - 1, null);
+                                              }
+                                          }
+
+                                          while (intervals.remove(null)) ;
+                                          return intervals;
+                                      }
+                                  }
+  
+ 19. first-missing-positive
+     Given an unsorted integer array, find the first missing positive integer.
+    For example,
+    Given[1,2,0]return3,
+    and[3,4,-1,1]return2.
+    Your algorithm should run in O(n) time and uses constant space.
+    
+                                public class Solution {
+                                  public int firstMissingPositive(int[] A) {
+                                      if(A.length == 0) return 1;
+                                      int max = Integer.MIN_VALUE;
+                                      for (int i = 0; i < A.length; i ++) {
+                                          max = max > A[i] ? max : A[i];
+                                      }
+                                      boolean[] flag = new boolean[max + 1];
+                                      for (int i = 0; i < A.length; i ++) {
+                                          if(A[i] > 0) flag[A[i]] = true;
+                                      }
+                                      for (int i = 1; i < flag.length; i ++) {
+                                          if( ! flag[i]) return i;
+                                      }
+                                      return max + 1;
+                                  }
+                              }
+  
+  20.实现下一个排列，它将数字重新排列成字典下一个更大的数字排列。
+      Implement next permutation, which rearranges numbers into the lexicographically next greater permutation of numbers.
+    If such arrangement is not possible, it must rearrange it as the lowest possible order (ie, sorted in ascending order).
+    The replacement must be in-place, do not allocate extra memory.
+    Here are some examples. Inputs are in the left-hand column and its corresponding outputs are in the right-hand column.
+    1,2,3→1,3,2
+    3,2,1→1,2,3
+    1,1,5→1,5,1
+  //从后往前搜索，找到第一个后面有数大于它的，交换之，并将其后所有数排序
+                                import java.util.* ; 
+                                public class Solution {
+                                    public void nextPermutation(int[] num) {
+                                        int n = num.length ; 
+                                        boolean flag = false ; 
+                                        for(int i = n-1;i >= 0;i--){
+                                            int j = n-1; 
+                                            while(j > i && num[j] <= num[i]){
+                                                j-- ; 
+                                            }
+                                            if(j == i){
+                                                continue ;
+                                            }
+                                            int tmp = num[i] ;
+                                            num[i] = num[j] ; 
+                                            num[j] = tmp ; 
+                                            Arrays.sort(num,i+1,n) ; 
+                                            flag = true ; 
+                                            break ; 
+                                        }
+                                        if(!flag){
+                                            Arrays.sort(num) ; 
+                                        }
+                                    }
+                                }
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
+  
